@@ -20,52 +20,52 @@ export const usePlayersStore = create<PlayerStateType>((set) => ({
     {
       index: 0,
       image: null,
-      name: "Striker 1",
+      name: "Player 1",
     },
     {
       index: 1,
       image: null,
-      name: "Striker 2",
+      name: "Player 2",
     },
     {
       index: 2,
       image: null,
-      name: "Midfielder 1",
+      name: "Player 3",
     },
     {
       index: 3,
       image: null,
-      name: "Midfielder 2",
+      name: "Player 4",
     },
     {
       index: 4,
       image: null,
-      name: "Midfielder 3",
+      name: "Player 5",
     },
     {
       index: 5,
       image: null,
-      name: "Midfielder 4",
+      name: "Player 6",
     },
     {
       index: 6,
       image: null,
-      name: "Defender 1",
+      name: "Player 7",
     },
     {
       index: 7,
       image: null,
-      name: "Defender 2",
+      name: "Player 8",
     },
     {
       index: 8,
       image: null,
-      name: "Defender 3",
+      name: "Player 9",
     },
     {
       index: 9,
       image: null,
-      name: "Defender 4",
+      name: "Player 10",
     },
     {
       index: 10,

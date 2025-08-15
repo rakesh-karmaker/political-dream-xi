@@ -21,9 +21,10 @@
   --light-blue: #dee1f9;
   --blue: #5968dc;
 
-  --lime: #a1bc2f;
-  --green: #8aa921;
-  --dark-green: #576d0d;
+  --lime: #a3e086;
+  --light-green: #26a53a;
+  --green: #038b36;
+  --dark-green: #038433;
   --darkest-green: #324101;
 }
 
@@ -47,6 +48,7 @@
   --color-blue: var(--blue);
 
   --color-lime: var(--lime);
+  --color-light-green: var(--light-green);
   --color-green: var(--green);
   --color-dark-green: var(--dark-green);
   --color-darkest-green: var(--darkest-green);

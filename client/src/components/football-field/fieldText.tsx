@@ -13,7 +13,7 @@ export default function FieldText(): React.ReactNode {
       </div>
 
       <div className="absolute bottom-[2%]">
-        <p className="text-dark-green text-[2.2em] font-bold">
+        <p className="text-[2.2em] font-bold bg-clip-text bg-[linear-gradient(92.26deg,rgba(48,255,52,0.78)-62.95%,rgba(0,255,204,0.78)157.87%)] text-transparent">
           Political Dream XI
         </p>
       </div>

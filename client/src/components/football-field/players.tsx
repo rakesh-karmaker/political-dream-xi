@@ -1,48 +1,53 @@
 import usePlayers from "@/hooks/usePlayers";
+import {
+  playerPositions,
+  type PlayerPosition,
+} from "@/services/data/positions";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { RiFolderUploadFill } from "react-icons/ri";
 
 export default function Players(): React.ReactNode {
+  // const formation = playerPositions.formation334;
+  const [formation, setFormation] = useState<PlayerPosition[]>(
+    playerPositions.formation442
+  );
+  const [selectedFormation, setSelectedFormation] =
+    useState<string>("formation145");
   return (
     <div className="w-full h-full absolute inset-0 ">
-      <div className="w-full h-full max-h-[77%] flex flex-col gap-[9%] items-center">
-        <div className="w-full h-fit flex justify-center gap-[12%] pt-[5%]">
-          <PlayerInput index={0} />
-          <PlayerInput index={1} />
-        </div>
-        <div className="w-full h-fit flex justify-center gap-[12%]">
-          <div className="w-full h-fit flex justify-end items-center gap-[6%]">
-            <PlayerInput index={2} />
-            <PlayerInput index={3} />
-          </div>
-          <div className="w-full h-fit flex items-center gap-[6%]">
-            <PlayerInput index={4} />
-            <PlayerInput index={5} />
-          </div>
-        </div>
-        <div className="w-full h-fit flex justify-center gap-[12%]">
-          <div className="w-full h-fit flex justify-end items-center gap-[6%]">
-            <PlayerInput index={6} />
-            <PlayerInput index={7} />
-          </div>
-          <div className="w-full h-fit flex items-center gap-[6%]">
-            <PlayerInput index={8} />
-            <PlayerInput index={9} />
-          </div>
-        </div>
-        <div className="w-full h-fit flex justify-center items-center mt-[3%]">
-          <PlayerInput index={10} />
-        </div>
-      </div>
-      <div className="absolute bottom-[6%] left-[0.5%]">
-        <PlayerInput index={11} />
-      </div>
+      {formation.map((position, index) => (
+        <PlayerInput key={index} index={index} position={position} />
+      ))}
+      {/* <PlayerInput index={0} /> */}
+      <select
+        name="formation"
+        value={selectedFormation}
+        onChange={(e) => {
+          const newFormation = e.target.value as keyof typeof playerPositions;
+          setSelectedFormation(newFormation);
+          setFormation(playerPositions[newFormation]);
+        }}
+        className="absolute top-2 right-2 bg-white border border-gray-300 rounded p-2 shadow"
+      >
+        <option value="formation442">4-4-2</option>
+        <option value="formation334">3-3-4</option>
+        <option value="formation1144">1-1-4-4</option>
+        <option value="formation1243">1-2-4-3</option>
+        <option value="formation145">1-4-5</option>
+        <option value="formation1234">1-2-3-4</option>
+      </select>
     </div>
   );
 }
 
-function PlayerInput({ index }: { index: number }): React.ReactNode {
+function PlayerInput({
+  index,
+  position,
+}: {
+  index: number;
+  position: PlayerPosition;
+}): React.ReactNode {
   const { players, setPlayers } = usePlayers();
   const [image, setImage] = useState<string>("");
 
@@ -57,7 +62,13 @@ function PlayerInput({ index }: { index: number }): React.ReactNode {
   }, [players[index].image]);
 
   return (
-    <div className="w-[min(14vh,14vw)] h-fit flex flex-col items-center gap-[1%]">
+    <div
+      className="w-[15.5%] h-fit flex flex-col items-center gap-[1%] absolute transition-all duration-200"
+      style={{
+        bottom: `${position.y}%`,
+        left: `${position.x}%`,
+      }}
+    >
       <label
         htmlFor={`player-${index}-image`}
         className="w-[57%] aspect-square rounded-full relative cursor-pointer"
@@ -75,9 +86,17 @@ function PlayerInput({ index }: { index: number }): React.ReactNode {
           onChange={(e) => {
             if (e.target.files && e.target.files[0]) {
               const file = e.target.files[0];
+              const renamedFile = new File(
+                [file],
+                `player-${index}-${file.name}`,
+                { type: file.type }
+              );
               setPlayers((prev) => {
                 const newPlayers = [...prev];
-                newPlayers[index] = { ...newPlayers[index], image: file };
+                newPlayers[index] = {
+                  ...newPlayers[index],
+                  image: renamedFile,
+                };
                 return newPlayers;
               });
             }
@@ -85,7 +104,7 @@ function PlayerInput({ index }: { index: number }): React.ReactNode {
         />
         {image === "" && (
           <div className="absolute inset-0 flex justify-center items-center rounded-full backdrop-brightness-75 backdrop-blur-xl hover:backdrop-brightness-50 transition-all duration-200">
-            <RiFolderUploadFill className="text-white text-[min(3.2vh,3.2vw)]" />
+            <RiFolderUploadFill className="text-white text-[1.7em]" />
           </div>
         )}
       </label>
@@ -93,7 +112,7 @@ function PlayerInput({ index }: { index: number }): React.ReactNode {
         type="text"
         name={`player-${index}-name`}
         id={`player-${index}-name`}
-        className="w-full border-b-[0.2em] border-darkest-green p-[0.2em] outline-none text-[0.65em] text-center rounded-none text-darkest-green focus-within:border-dark-green transition-all duration-200"
+        className="w-full border-b-[0.2em] border-pure-white p-[0.2em] outline-none text-[0.65em] text-center rounded-none text-pure-white focus-within:border-dark-green transition-all duration-200"
         value={players[index].name}
         onChange={(e) => {
           const newName = e.target.value;
