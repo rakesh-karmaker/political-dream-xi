@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { uploadPlayers } from "../controllers/playersController.js";
+import { getGoals, uploadPlayers } from "../controllers/playersController.js";
 import upload from "../middlewares/multer.js";
 
 const playersRouter = Router();
+
+playersRouter.get("/goals", getGoals);
 
 playersRouter.post(
   "/upload-players",

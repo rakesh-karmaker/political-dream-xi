@@ -5,9 +5,9 @@ export default async function editImage(
   name: string
 ) {
   const size = 230; // circle size
-  const shadowBlur = 12.3596; // from CSS
+  const shadowBlur = 12.3596;
   const borderWidth = 8;
-  const borderColor = "#23B133"; // bright green
+  const borderColor = "#23B133";
   const shadowPadding = 32; // extra space for blur
   const fontSize = 32;
   const textColor = "#FFFFFF";

@@ -2,7 +2,20 @@ import { Request, Response } from "express";
 import sharp from "sharp";
 import editImage from "../lib/editImage.js";
 import { playerPositions } from "../services/data/positions.js";
-import getImage from "../utils/getFootballField.js";
+import fetchImage from "../utils/fetchImage.js";
+import config from "../config/config.js";
+import redisClient from "../config/redis/client.js";
+import { uploadFile } from "../lib/upload.js";
+
+export async function getGoals(_: Request, res: Response): Promise<void> {
+  try {
+    const goals = await redisClient.get("goals");
+    res.status(200).json(goals);
+  } catch (error) {
+    console.error("Error fetching goals:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
 
 export async function uploadPlayers(
   req: Request,
@@ -10,8 +23,9 @@ export async function uploadPlayers(
 ): Promise<void> {
   try {
     const formation = req.body.formation as keyof typeof playerPositions;
-    if (!formation || !playerPositions[formation]) {
-      res.status(400).send("Formation is required.");
+    const isSharing = req.body.isSharing;
+    if (!formation || !playerPositions[formation] || !isSharing) {
+      res.status(400).send("Invalid request.");
       return;
     }
     if (!req.files || req.files.length === 0) {
@@ -20,8 +34,8 @@ export async function uploadPlayers(
     }
 
     // Get football field image and metadata
-    const footballField = await getImage(
-      "http://localhost:5173/footballfield.png"
+    const footballField = await fetchImage(
+      `${config.clientUrl}/footballfield.png`
     );
     const footballFieldMetadata = await sharp(footballField).metadata();
     const footballFieldWidth = footballFieldMetadata.width!;
@@ -43,11 +57,12 @@ export async function uploadPlayers(
       if (playerImage !== undefined) {
         playerImageBuffer = playerImage;
       } else {
-        playerImageBuffer = await getImage(
-          "http://localhost:5173/default-player.png"
+        playerImageBuffer = await fetchImage(
+          `${config.clientUrl}/default-player.png`
         );
       }
 
+      // Edit player image
       const compositeImage = await editImage(
         {
           buffer: Buffer.isBuffer(playerImageBuffer)
@@ -61,6 +76,7 @@ export async function uploadPlayers(
         req.body[`player-${index}-name`]
       );
 
+      // Composite player image onto the football field
       finalImageBuffer = await sharp(finalImageBuffer)
         .composite([
           {
@@ -78,8 +94,11 @@ export async function uploadPlayers(
         .toBuffer();
     }
 
+    // Get current goals from Redis
+    const goals = await redisClient.get("goals");
+
     // Add goal scorer text
-    const text = "1";
+    const text = parseInt(goals || "0") + 1;
     const fontSize = 120;
     const textColor = "#a3e086";
     const textPadding = 200;
@@ -95,6 +114,7 @@ export async function uploadPlayers(
     </svg>`;
     const textBuffer = Buffer.from(textSvg);
 
+    // Composite text onto the final image
     finalImageBuffer = await sharp(finalImageBuffer)
       .composite([
         {
@@ -105,8 +125,35 @@ export async function uploadPlayers(
       ])
       .toBuffer();
 
-    res.set("Content-Type", "image/png");
-    res.send(finalImageBuffer);
+    let url: string = "";
+    if (isSharing === "true") {
+      const uploadResult = await uploadFile(res, {
+        buffer: finalImageBuffer,
+        fieldname: "finalImage",
+        originalname: "final-image.png",
+        encoding: "7bit",
+        mimetype: "image/png",
+        size: finalImageBuffer.length,
+      } as Express.Multer.File);
+      if (
+        uploadResult &&
+        typeof uploadResult === "object" &&
+        "url" in uploadResult
+      ) {
+        url = uploadResult.url;
+      }
+    }
+
+    // Update goals in Redis
+    await redisClient.set("goals", parseInt(goals || "0") + 1);
+
+    // Send the final image buffer as the response
+    res.set("Content-Type", "application/json");
+    res.send({
+      goals: parseInt(goals || "0") + 1,
+      url,
+      buffer: finalImageBuffer.toString("base64"),
+    });
   } catch (error) {
     console.error("Error uploading players:", error);
     res.status(500).send("Internal Server Error");

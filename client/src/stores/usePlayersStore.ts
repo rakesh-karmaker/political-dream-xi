@@ -1,5 +1,5 @@
 import { defaultPlayers } from "@/services/data/players";
-import type { playerPositions } from "@/services/data/positions";
+import type { formations } from "@/services/data/positions";
 import { create } from "zustand";
 
 export type PlayerStateType = {
@@ -17,8 +17,8 @@ export type PlayerStateType = {
   ) => void;
   goals: number;
   setGoals: (goals: number) => void;
-  formation: keyof typeof playerPositions;
-  setFormation: (formation: keyof typeof playerPositions) => void;
+  formation: keyof typeof formations;
+  setFormation: (formation: keyof typeof formations) => void;
 };
 
 export const usePlayersStore = create<PlayerStateType>((set) => ({

@@ -1,6 +1,6 @@
 export type PlayerPosition = { x: number; y: number };
 
-export const playerPositions: Record<
+export const formations: Record<
   | "formation442"
   | "formation334"
   | "formation1144"

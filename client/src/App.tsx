@@ -1,23 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import FootballField from "./components/football-field/footballField";
 import usePlayers from "./hooks/usePlayers";
-import { uploadPlayerImages } from "./lib/playersUpload";
+import { fetchGoals, uploadPlayerImages } from "./lib/playersUpload";
+import { useQuery } from "@tanstack/react-query";
 
 function App() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-  const { players, formation } = usePlayers();
+  const { players, formation, setGoals } = usePlayers();
   async function handleUpload() {
     // Call the upload function here
-    const res = await uploadPlayerImages(players, formation);
-    console.log("Upload response:", res);
+    const res = await uploadPlayerImages(players, formation, false);
     if (res.status === 200) {
-      const imageBuffer = new Blob([res.data]);
-      const imageUrl = URL.createObjectURL(imageBuffer);
-      console.log("Uploaded image URL:", imageUrl);
+      const imageUrl = `data:image/png;base64,${res.data.buffer}`;
       setUploadedImageUrl(imageUrl);
+      setGoals(res.data.goals);
+      if (res.data.url && res.data.url !== "") {
+        window.location.href = `https://www.facebook.com/sharer/sharer.php?u=${res.data.url}`;
+      }
     }
   }
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["goals"],
+    queryFn: fetchGoals,
+  });
+
+  useEffect(() => {
+    if (data && !isLoading) {
+      setGoals(data);
+    }
+  }, [data, isLoading]);
+
   return (
     <div className="w-screen h-full flex flex-col justify-center items-center">
       <FootballField />

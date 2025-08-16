@@ -1,32 +1,26 @@
 import usePlayers from "@/hooks/usePlayers";
-import {
-  playerPositions,
-  type PlayerPosition,
-} from "@/services/data/positions";
+import { formations, type PlayerPosition } from "@/services/data/positions";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { RiFolderUploadFill } from "react-icons/ri";
 
 export default function Players(): React.ReactNode {
-  // const formation = playerPositions.formation334;
-  const [formation, setFormation] = useState<PlayerPosition[]>(
-    playerPositions.formation442
+  const { formation, setFormation } = usePlayers();
+  const [position, setPosition] = useState<PlayerPosition[]>(
+    formations[formation]
   );
-  const [selectedFormation, setSelectedFormation] =
-    useState<string>("formation145");
   return (
     <div className="w-full h-full absolute inset-0 ">
-      {formation.map((position, index) => (
+      {position.map((position, index) => (
         <PlayerInput key={index} index={index} position={position} />
       ))}
-      {/* <PlayerInput index={0} /> */}
       <select
         name="formation"
-        value={selectedFormation}
+        value={formation}
         onChange={(e) => {
-          const newFormation = e.target.value as keyof typeof playerPositions;
-          setSelectedFormation(newFormation);
-          setFormation(playerPositions[newFormation]);
+          const newFormation = e.target.value as keyof typeof formations;
+          setFormation(newFormation);
+          setPosition(formations[newFormation]);
         }}
         className="absolute top-2 right-2 bg-white border border-gray-300 rounded p-2 shadow"
       >
