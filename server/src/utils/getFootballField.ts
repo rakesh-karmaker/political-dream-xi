@@ -1,14 +1,11 @@
 import axios from "axios";
 
-export default async function getFootballField() {
+export default async function getImage(url: string): Promise<Buffer> {
   try {
-    const response = await axios.get(
-      "https://res.cloudinary.com/dcq6gokha/image/upload/v1754924448/football-field-full_xkfkjl.png",
-      { responseType: "arraybuffer" }
-    );
+    const response = await axios.get(url, { responseType: "arraybuffer" });
     return Buffer.from(response.data);
   } catch (error) {
-    console.error("Error getting football field:", error);
-    throw new Error("Failed to get football field");
+    console.error("Error getting image:", error);
+    throw new Error("Failed to get image");
   }
 }

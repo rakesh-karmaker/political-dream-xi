@@ -6,10 +6,10 @@ import { uploadPlayerImages } from "./lib/playersUpload";
 
 function App() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-  const { players } = usePlayers();
+  const { players, formation } = usePlayers();
   async function handleUpload() {
     // Call the upload function here
-    const res = await uploadPlayerImages(players);
+    const res = await uploadPlayerImages(players, formation);
     console.log("Upload response:", res);
     if (res.status === 200) {
       const imageBuffer = new Blob([res.data]);

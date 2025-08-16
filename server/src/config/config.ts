@@ -8,6 +8,7 @@ interface Config {
   cloudinaryCloudName: string;
   cloudinaryApiKey: string;
   cloudinaryApiSecret: string;
+  redisUrl: string;
 }
 
 const config: Config = {
@@ -17,6 +18,7 @@ const config: Config = {
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || "",
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
+  redisUrl: process.env.REDIS_URL || "",
 };
 
 export default config;

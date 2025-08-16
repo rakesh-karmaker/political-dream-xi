@@ -1,7 +1,8 @@
 import api from "@/config/axios";
 
 export async function uploadPlayerImages(
-  playerData: { index: number; image: File | null; name: string }[]
+  playerData: { index: number; image: File | null; name: string }[],
+  formation: string
 ) {
   const formData = new FormData();
   playerData.forEach((player) => {
@@ -10,6 +11,8 @@ export async function uploadPlayerImages(
     }
     formData.append(`player-${player.index}-name`, player.name);
   });
+
+  formData.append("formation", formation);
 
   return await api.post("/upload-players", formData, {
     headers: {
