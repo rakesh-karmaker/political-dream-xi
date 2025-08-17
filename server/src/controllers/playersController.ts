@@ -141,6 +141,7 @@ export async function uploadPlayers(
         "url" in uploadResult
       ) {
         url = uploadResult.url;
+        console.log("Image uploaded to Cloudinary:", url);
       }
     }
 
