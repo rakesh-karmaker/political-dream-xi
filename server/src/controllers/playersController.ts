@@ -96,7 +96,7 @@ export async function uploadPlayers(
         (position.yOffset || 0);
       const left =
         Math.floor(footballFieldWidth * (position.x / 100)) +
-        47 +
+        0 +
         (position.xOffset || 0);
 
       composites.push({ input: compositeImage, top, left });

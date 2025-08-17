@@ -74,6 +74,6 @@ export const defaultPlayers: {
     index: 11,
     image: null,
     name: "",
-    placeHolder: "Dr. Yunus",
+    placeHolder: "Manager",
   },
 ];

@@ -44,17 +44,20 @@ function getShadow(size: number, shadowPadding: number, shadowBlur: number) {
 export default async function editImage(
   userImage: Express.Multer.File,
   name: string,
-  options?: { size?: number; borderColor?: string }
+  options?: { size?: number; borderColor?: string; extraTextWidth?: number }
 ) {
   const size = options?.size ?? 250;
   const shadowBlur = Math.min(10, 12.3596); // cap expensive blur
   const borderWidth = 8;
   const borderColor = options?.borderColor ?? "#23B133";
   const shadowPadding = Math.min(24, Math.round(size * 0.15));
-  const fontSize = Math.max(39, Math.round(size * 0.12));
+  const fontSize = Math.max(43, Math.round(size * 0.12));
   const textColor = "#FFFFFF";
-  const textPadding = 12;
-  const maxTextWidth = size + shadowPadding * 2;
+  const textPadding = 20;
+  const extraTextWidth = options?.extraTextWidth ?? 120; // increase this for more text width
+
+  const baseWidth = size + shadowPadding * 2;
+  const maxTextWidth = baseWidth + extraTextWidth;
 
   // Prepare reusable SVG buffers
   const circleMask = getCircleMask(size);
@@ -91,7 +94,7 @@ export default async function editImage(
   }
   if (cur) lines.push(cur.trim());
 
-  const lineHeight = fontSize * 1.2;
+  const lineHeight = fontSize * 1.4;
   const textHeight = lines.length * lineHeight + textPadding;
   const totalHeight = size + shadowPadding * 2 + textHeight;
 
@@ -106,8 +109,10 @@ export default async function editImage(
   const textBuffer = Buffer.from(textSvg);
 
   // 5. Composite final image: shadow (larger canvas) + circle + border + text
-  const canvasWidth = size + shadowPadding * 2;
+  const canvasWidth = baseWidth + extraTextWidth;
   const canvasHeight = Math.round(totalHeight) + 10;
+  // Center circle and shadow in the wider canvas
+  const offsetX = Math.floor((canvasWidth - baseWidth) / 2);
 
   const composed = await sharp({
     create: {
@@ -118,12 +123,15 @@ export default async function editImage(
     },
   })
     .composite([
-      { input: shadow, top: 6, left: 0 },
-      { input: mainCircle, top: shadowPadding, left: shadowPadding },
-      { input: borderCircle, top: shadowPadding, left: shadowPadding },
+      { input: shadow, top: 6, left: offsetX },
+      { input: mainCircle, top: shadowPadding, left: offsetX + shadowPadding },
+      {
+        input: borderCircle,
+        top: shadowPadding,
+        left: offsetX + shadowPadding,
+      },
       { input: textBuffer, top: size + shadowPadding * 2 - 20, left: 0 },
     ])
-    // produce webp which is faster and smaller than PNG for photos
     .webp({ quality: 80 })
     .toBuffer();
 
