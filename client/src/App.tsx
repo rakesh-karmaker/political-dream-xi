@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 import FootballField from "./components/football-field/footballField";
 import usePlayers from "./hooks/usePlayers";
-import { fetchGoals, uploadPlayerImages } from "./lib/playersUpload";
+import { fetchGoals } from "./lib/playersUpload";
 import { useQuery } from "@tanstack/react-query";
 import { useSocketStore } from "./stores/useSocketStore";
+import HeroContent from "./components/hero-content/heroContent";
 
 function App() {
+  const { setGoals } = usePlayers();
+
   // set up socket
   const connect = useSocketStore((s) => s.connect);
   const disconnect = useSocketStore((s) => s.disconnect);
   const socket = useSocketStore((s) => s.socket);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-  const { players, formation, setGoals } = usePlayers();
 
   useEffect(() => {
     connect();
@@ -29,19 +31,7 @@ function App() {
     }
   }, [socket]);
 
-  async function handleUpload() {
-    // Call the upload function here
-    const res = await uploadPlayerImages(players, formation, false);
-    if (res.status === 200) {
-      const imageUrl = `data:image/png;base64,${res.data.buffer}`;
-      setUploadedImageUrl(imageUrl);
-      setGoals(parseInt(res.data.goals ?? 0, 10));
-      if (res.data.url && res.data.url !== "") {
-        window.location.href = `https://www.facebook.com/sharer/sharer.php?u=${res.data.url}`;
-      }
-    }
-  }
-
+  // Fetch goals
   const { data, isLoading } = useQuery({
     queryKey: ["goals"],
     queryFn: fetchGoals,
@@ -54,14 +44,17 @@ function App() {
   }, [data, isLoading]);
 
   return (
-    <div className="w-screen h-full flex flex-col justify-center items-center">
-      <FootballField />
-      <button onClick={handleUpload}>upload</button>
+    <div className="relative w-screen h-full min-h-screen flex justify-center items-center">
+      <div className="max-w-[2900px] w-screen h-full min-h-screen flex justify-between items-center px-[5vh] gap-[2vh]">
+        <HeroContent />
+        <FootballField />
+      </div>
       <img
-        src={uploadedImageUrl}
-        alt="Uploaded Player"
-        className="w-full h-full object-cover"
+        src="/slide-img-1.png"
+        alt="slide-img-1"
+        className="absolute top-0 left-0 w-full h-full object-cover -z-[9999] brightness-25"
       />
+      <Toaster position="bottom-left" />
     </div>
   );
 }
