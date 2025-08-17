@@ -56,7 +56,7 @@ export const formations: Record<
     },
     {
       x: 0,
-      y: 6,
+      y: 4,
     },
   ],
   formation334: [
@@ -106,7 +106,7 @@ export const formations: Record<
     },
     {
       x: 0,
-      y: 6,
+      y: 4,
     },
   ],
   formation1144: [
@@ -156,7 +156,7 @@ export const formations: Record<
     },
     {
       x: 0,
-      y: 6,
+      y: 4,
     },
   ],
   formation1243: [
@@ -206,7 +206,7 @@ export const formations: Record<
     },
     {
       x: 0,
-      y: 6,
+      y: 4,
     },
   ],
   formation145: [
@@ -256,7 +256,7 @@ export const formations: Record<
     },
     {
       x: 0,
-      y: 6,
+      y: 4,
     },
   ],
   formation1234: [
@@ -306,7 +306,7 @@ export const formations: Record<
     },
     {
       x: 0,
-      y: 6,
+      y: 4,
     },
   ],
 };

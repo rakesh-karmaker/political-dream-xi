@@ -51,7 +51,7 @@ export default async function editImage(
   const borderWidth = 8;
   const borderColor = options?.borderColor ?? "#23B133";
   const shadowPadding = Math.min(24, Math.round(size * 0.15));
-  const fontSize = Math.max(32, Math.round(size * 0.12));
+  const fontSize = Math.max(39, Math.round(size * 0.12));
   const textColor = "#FFFFFF";
   const textPadding = 12;
   const maxTextWidth = size + shadowPadding * 2;

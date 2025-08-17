@@ -7,13 +7,29 @@ export type PlayerStateType = {
     index: number;
     image: File | null; // Using string for image URL or File for file input
     name: string;
+    placeHolder: string;
   }[];
   setPlayers: (
     players:
-      | { index: number; image: File | null; name: string }[]
+      | {
+          index: number;
+          image: File | null;
+          name: string;
+          placeHolder: string;
+        }[]
       | ((
-          prev: { index: number; image: File | null; name: string }[]
-        ) => { index: number; image: File | null; name: string }[])
+          prev: {
+            index: number;
+            image: File | null;
+            name: string;
+            placeHolder: string;
+          }[]
+        ) => {
+          index: number;
+          image: File | null;
+          name: string;
+          placeHolder: string;
+        }[])
   ) => void;
   goals: number;
   setGoals: (goals: number) => void;

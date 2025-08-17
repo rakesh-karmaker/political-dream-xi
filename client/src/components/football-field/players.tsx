@@ -57,7 +57,7 @@ function PlayerInput({
 
   return (
     <div
-      className="w-[15.5%] h-fit flex flex-col items-center gap-[1%] absolute transition-all duration-200"
+      className="w-[15.5%] h-fit flex flex-col items-center gap-[0.05em] absolute transition-all duration-200"
       style={{
         bottom: `${position.y}%`,
         left: `${position.x}%`,
@@ -106,7 +106,8 @@ function PlayerInput({
         type="text"
         name={`player-${index}-name`}
         id={`player-${index}-name`}
-        className="w-full border-b-[0.2em] border-pure-white p-[0.2em] outline-none text-[0.65em] text-center rounded-none text-pure-white focus-within:border-dark-green transition-all duration-200"
+        className="w-full border-b-[0.2em] border-pure-white p-[0.2em] outline-none text-[0.8em] text-center rounded-none text-pure-white focus-within:border-black transition-all duration-200 placeholder:text-pure-white/70"
+        placeholder={players[index].placeHolder}
         value={players[index].name}
         onChange={(e) => {
           const newName = e.target.value;

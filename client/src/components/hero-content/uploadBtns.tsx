@@ -41,6 +41,7 @@ export default function UploadBtns(): React.ReactNode {
               backdropFilter: "blur(10px)",
               color: "#fff",
             },
+            duration: 5000,
           }
         );
       },
@@ -57,6 +58,7 @@ export default function UploadBtns(): React.ReactNode {
               backdropFilter: "blur(10px)",
               color: "#fff",
             },
+            duration: 5000,
           });
         } else {
           // Handle other errors
@@ -68,6 +70,7 @@ export default function UploadBtns(): React.ReactNode {
               backdropFilter: "blur(10px)",
               color: "#fff",
             },
+            duration: 5000,
           });
         }
       },

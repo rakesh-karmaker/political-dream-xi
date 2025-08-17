@@ -7,7 +7,12 @@ export async function fetchGoals() {
 }
 
 export async function uploadPlayerImages(
-  playerData: { index: number; image: File | null; name: string }[],
+  playerData: {
+    index: number;
+    image: File | null;
+    name: string;
+    placeHolder: string;
+  }[],
   formation: keyof typeof formations,
   isSharing: boolean
 ) {
@@ -16,7 +21,10 @@ export async function uploadPlayerImages(
     if (player.image) {
       formData.append(`player-image`, player.image);
     }
-    formData.append(`player-${player.index}-name`, player.name);
+    formData.append(
+      `player-${player.index}-name`,
+      player.name === "" ? player.placeHolder : player.name
+    );
   });
 
   formData.append("formation", formation);
