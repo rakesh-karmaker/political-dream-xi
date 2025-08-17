@@ -8,7 +8,7 @@ export default function HeroContent(): React.ReactNode {
   return (
     <div className="w-full h-full min-h-[min(90vh,90vw,1700px)] flex flex-col justify-between gap-10 max-w-[50em] max-xl:max-w-full max-xl:min-h-fit max-xl:items-center max-xl:py-[min(10vh,10vw)]">
       <HeroTop />
-      <div className="hidden max-xl:flex flex-col gap-3.5">
+      <div className="hidden max-xl:flex flex-col gap-3.5 items-center">
         <FootballField />
         <UploadBtns />
       </div>
