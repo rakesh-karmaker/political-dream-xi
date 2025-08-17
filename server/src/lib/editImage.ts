@@ -46,12 +46,12 @@ export default async function editImage(
   name: string,
   options?: { size?: number; borderColor?: string }
 ) {
-  const size = options?.size ?? 230;
+  const size = options?.size ?? 250;
   const shadowBlur = Math.min(10, 12.3596); // cap expensive blur
   const borderWidth = 8;
   const borderColor = options?.borderColor ?? "#23B133";
   const shadowPadding = Math.min(24, Math.round(size * 0.15));
-  const fontSize = Math.max(14, Math.round(size * 0.12));
+  const fontSize = Math.max(32, Math.round(size * 0.12));
   const textColor = "#FFFFFF";
   const textPadding = 12;
   const maxTextWidth = size + shadowPadding * 2;
@@ -121,7 +121,7 @@ export default async function editImage(
       { input: shadow, top: 6, left: 0 },
       { input: mainCircle, top: shadowPadding, left: shadowPadding },
       { input: borderCircle, top: shadowPadding, left: shadowPadding },
-      { input: textBuffer, top: size + shadowPadding * 2 - 30, left: 0 },
+      { input: textBuffer, top: size + shadowPadding * 2 - 20, left: 0 },
     ])
     // produce webp which is faster and smaller than PNG for photos
     .webp({ quality: 80 })
