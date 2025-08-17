@@ -8,7 +8,7 @@ playersRouter.get("/goals", getGoals);
 
 playersRouter.post(
   "/upload-players",
-  upload.array("player-image", 11),
+  upload.array("player-image", 12),
   uploadPlayers
 );
 

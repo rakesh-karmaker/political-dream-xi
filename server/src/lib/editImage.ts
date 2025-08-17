@@ -1,74 +1,98 @@
 import sharp from "sharp";
 
+// Caches for SVG assets keyed by size
+const maskCache = new Map<number, Buffer>();
+const borderCache = new Map<number, Buffer>();
+const shadowCache = new Map<string, Buffer>(); // key includes size+padding
+
+function getCircleMask(size: number) {
+  const cached = maskCache.get(size);
+  if (cached) return cached;
+  const svg = `<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white"/></svg>`;
+  const buf = Buffer.from(svg);
+  maskCache.set(size, buf);
+  return buf;
+}
+
+function getBorderCircle(
+  size: number,
+  borderWidth: number,
+  borderColor: string
+) {
+  const key = `${size}-${borderWidth}-${borderColor}`;
+  const cached = borderCache.get(size);
+  if (cached) return cached;
+  const svg = `<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - borderWidth / 2}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
+  const buf = Buffer.from(svg);
+  borderCache.set(size, buf);
+  return buf;
+}
+
+function getShadow(size: number, shadowPadding: number, shadowBlur: number) {
+  const key = `${size}-${shadowPadding}-${shadowBlur}`;
+  const cached = shadowCache.get(key);
+  if (cached) return cached;
+  const canvas = size + shadowPadding * 2;
+  const cx = size / 2 + shadowPadding;
+  const cy = size / 2 + shadowPadding;
+  const svg = `<svg width="${canvas}" height="${canvas}"><circle cx="${cx}" cy="${cy}" r="${size / 2}" fill="black"/></svg>`;
+  const buf = Buffer.from(svg);
+  shadowCache.set(key, buf);
+  return buf;
+}
+
 export default async function editImage(
   userImage: Express.Multer.File,
-  name: string
+  name: string,
+  options?: { size?: number; borderColor?: string }
 ) {
-  const size = 230; // circle size
-  const shadowBlur = 12.3596;
+  // Tunable options with sensible defaults (reduce sizes for speed)
+  const size = options?.size ?? 160; // default smaller than before for performance
+  const shadowBlur = Math.min(10, 12.3596); // cap expensive blur
   const borderWidth = 8;
-  const borderColor = "#23B133";
-  const shadowPadding = 32; // extra space for blur
-  const fontSize = 32;
+  const borderColor = options?.borderColor ?? "#23B133";
+  const shadowPadding = Math.min(24, Math.round(size * 0.15));
+  const fontSize = Math.max(14, Math.round(size * 0.12));
   const textColor = "#FFFFFF";
-  const textPadding = 20;
+  const textPadding = 12;
   const maxTextWidth = size + shadowPadding * 2;
 
-  // 1. Create circular mask
-  const circleMaskSvg = `
-    <svg width="${size}" height="${size}">
-      <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white" />
-    </svg>
-  `;
-  const circleMask = Buffer.from(circleMaskSvg);
+  // Prepare reusable SVG buffers
+  const circleMask = getCircleMask(size);
+  const borderCircle = getBorderCircle(size, borderWidth, borderColor);
+  const shadowSvg = getShadow(size, shadowPadding, shadowBlur);
 
-  // 2. Main circular image
-  const mainCircle = await sharp(userImage.buffer)
-    .resize(size, size)
+  // 1. Resize source early (cheaper operations follow)
+  const resized = await sharp(userImage.buffer)
+    .resize(size, size, { fit: "cover" })
+    .toBuffer();
+
+  // 2. Create main circular image using mask
+  const mainCircle = await sharp(resized)
     .composite([{ input: circleMask, blend: "dest-in" }])
     .png()
     .toBuffer();
 
-  // 3. Shadow
-  const shadowCircleSvg = `
-    <svg width="${size + shadowPadding * 2}" height="${size + shadowPadding * 2}">
-      <circle cx="${size / 2 + shadowPadding}" cy="${size / 2 + shadowPadding}" r="${size / 2}" fill="black" />
-    </svg>
-  `;
-  const shadowCircle = Buffer.from(shadowCircleSvg);
+  // 3. Create blurred shadow from larger SVG on a single pass
+  const shadow = await sharp(shadowSvg).blur(shadowBlur).png().toBuffer();
 
-  const shadow = await sharp(shadowCircle)
-    .blur(shadowBlur / 2)
-    .modulate({ brightness: 0.2 })
-    .png()
-    .toBuffer();
-
-  // 4. Border
-  const borderCircleSvg = `
-    <svg width="${size}" height="${size}">
-      <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - borderWidth / 2}"
-        fill="none" stroke="${borderColor}" stroke-width="${borderWidth}" />
-    </svg>
-  `;
-  const borderCircle = Buffer.from(borderCircleSvg);
-
-  // 4. Create dynamic text SVG (using <tspan> for wrapping)
-  const words = name.split(" ");
-  const lineHeight = fontSize * 1.2;
-  let lines: string[] = [];
-  let currentLine = "";
-
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    if (testLine.length * (fontSize * 0.6) > maxTextWidth) {
-      lines.push(currentLine);
-      currentLine = word;
+  // 4. Dynamic text layout (simple wrap by chars; avoids heavy measuring)
+  const words = (name || "").split(" ");
+  const avgCharWidth = fontSize * 0.6;
+  const maxCharsPerLine = Math.max(6, Math.floor(maxTextWidth / avgCharWidth));
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > maxCharsPerLine) {
+      if (cur) lines.push(cur.trim());
+      cur = w;
     } else {
-      currentLine = testLine;
+      cur = (cur + " " + w).trim();
     }
   }
-  if (currentLine) lines.push(currentLine);
+  if (cur) lines.push(cur.trim());
 
+  const lineHeight = fontSize * 1.2;
   const textHeight = lines.length * lineHeight + textPadding;
   const totalHeight = size + shadowPadding * 2 + textHeight;
 
@@ -79,20 +103,17 @@ export default async function editImage(
     )
     .join("");
 
-  const textSvg = `
-    <svg width="${maxTextWidth}" height="${textHeight + 10}">
-      <text x="50%" y="${fontSize}" font-family="Arial" font-size="${fontSize}" font-weight="bold"
-        fill="${textColor}" text-anchor="middle" dominant-baseline="hanging">
-        ${tspans}
-      </text>
-    </svg>`;
+  const textSvg = `<svg width="${maxTextWidth}" height="${textHeight + 10}"><text x="50%" y="${fontSize}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="hanging">${tspans}</text></svg>`;
   const textBuffer = Buffer.from(textSvg);
 
-  // 6. Final canvas (circle + shadow + border + text)
-  const finalImage = await sharp({
+  // 5. Composite final image: shadow (larger canvas) + circle + border + text
+  const canvasWidth = size + shadowPadding * 2;
+  const canvasHeight = Math.round(totalHeight) + 10;
+
+  const composed = await sharp({
     create: {
-      width: size + shadowPadding * 2,
-      height: Math.round(totalHeight) + 10, // extra height for text
+      width: canvasWidth,
+      height: canvasHeight,
       channels: 4,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     },
@@ -101,10 +122,11 @@ export default async function editImage(
       { input: shadow, top: 6, left: 0 },
       { input: mainCircle, top: shadowPadding, left: shadowPadding },
       { input: borderCircle, top: shadowPadding, left: shadowPadding },
-      { input: textBuffer, top: size + shadowPadding * 2 - 35, left: 0 },
+      { input: textBuffer, top: size + shadowPadding * 2 - 30, left: 0 },
     ])
-    .png()
+    // produce webp which is faster and smaller than PNG for photos
+    .webp({ quality: 80 })
     .toBuffer();
 
-  return finalImage;
+  return composed;
 }

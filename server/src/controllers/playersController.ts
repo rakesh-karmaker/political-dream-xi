@@ -7,6 +7,14 @@ import config from "../config/config.js";
 import redisClient from "../config/redis/client.js";
 import { uploadFile } from "../lib/upload.js";
 
+// Tune sharp for low-CPU environments
+sharp.cache({ memory: 50, files: 0, items: 0 });
+sharp.concurrency(1);
+
+// Simple in-memory cache for the football field to avoid refetching/decoding
+let cachedFootballField: Buffer | null = null;
+let cachedFootballFieldMeta: { width: number; height: number } | null = null;
+
 export async function getGoals(_: Request, res: Response): Promise<void> {
   try {
     const goals = await redisClient.get("goals");
@@ -33,17 +41,23 @@ export async function uploadPlayers(
       return;
     }
 
-    // Get football field image and metadata
-    const footballField = await fetchImage(
-      `${config.clientUrl}/footballfield.png`
-    );
-    const footballFieldMetadata = await sharp(footballField).metadata();
-    const footballFieldWidth = footballFieldMetadata.width!;
-    const footballFieldHeight = footballFieldMetadata.height!;
+    // Get football field image and metadata (use cached copy when available)
+    if (!cachedFootballField) {
+      cachedFootballField = await fetchImage(
+        `${config.clientUrl}/footballfield.png`
+      );
+      const meta = await sharp(cachedFootballField).metadata();
+      cachedFootballFieldMeta = { width: meta.width!, height: meta.height! };
+    }
+    const footballField = cachedFootballField!;
+    const footballFieldWidth = cachedFootballFieldMeta!.width;
+    const footballFieldHeight = cachedFootballFieldMeta!.height;
 
     // Get player positions
     const positions = playerPositions[formation];
-    let finalImageBuffer = footballField;
+
+    // Build composites array first
+    const composites: { input: Buffer; top: number; left: number }[] = [];
 
     for (const [index, position] of positions.entries()) {
       const playerImage = Array.isArray(req.files)
@@ -76,23 +90,22 @@ export async function uploadPlayers(
         req.body[`player-${index}-name`]
       );
 
-      // Composite player image onto the football field
-      finalImageBuffer = await sharp(finalImageBuffer)
-        .composite([
-          {
-            input: compositeImage,
-            top:
-              Math.floor(footballFieldHeight * (1 - position.y / 100)) -
-              340 +
-              position.yOffset,
-            left:
-              Math.floor(footballFieldWidth * (position.x / 100)) +
-              47 +
-              position.xOffset,
-          },
-        ])
-        .toBuffer();
+      const top =
+        Math.floor(footballFieldHeight * (1 - position.y / 100)) -
+        340 +
+        (position.yOffset || 0);
+      const left =
+        Math.floor(footballFieldWidth * (position.x / 100)) +
+        47 +
+        (position.xOffset || 0);
+
+      composites.push({ input: compositeImage, top, left });
     }
+
+    // Composite all players in a single pass
+    let finalImageBuffer = await sharp(footballField)
+      .composite(composites)
+      .toBuffer();
 
     // Get current goals from Redis
     const goals = await redisClient.get("goals");
