@@ -46,8 +46,7 @@ export default async function editImage(
   name: string,
   options?: { size?: number; borderColor?: string }
 ) {
-  // Tunable options with sensible defaults (reduce sizes for speed)
-  const size = options?.size ?? 160; // default smaller than before for performance
+  const size = options?.size ?? 230;
   const shadowBlur = Math.min(10, 12.3596); // cap expensive blur
   const borderWidth = 8;
   const borderColor = options?.borderColor ?? "#23B133";
