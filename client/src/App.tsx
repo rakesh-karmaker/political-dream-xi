@@ -7,6 +7,7 @@ import { fetchGoals } from "./lib/playersUpload";
 import { useQuery } from "@tanstack/react-query";
 import { useSocketStore } from "./stores/useSocketStore";
 import HeroContent from "./components/hero-content/heroContent";
+import ImageSwiper from "./components/swiper/imageSwiper";
 
 function App() {
   const { setGoals } = usePlayers();
@@ -45,15 +46,13 @@ function App() {
 
   return (
     <div className="relative w-screen h-full min-h-screen flex justify-center items-center">
-      <div className="max-w-[2900px] w-screen h-full min-h-screen flex justify-between items-center px-[5vh] gap-[2vh]">
+      <div className="max-w-[2900px] w-screen h-full min-h-screen flex max-xl:flex-col justify-between items-center px-[min(5vh,5vw)] gap-[4vh]">
         <HeroContent />
-        <FootballField />
+        <div className="max-xl:hidden">
+          <FootballField />
+        </div>
       </div>
-      <img
-        src="/slide-img-1.png"
-        alt="slide-img-1"
-        className="absolute top-0 left-0 w-full h-full object-cover -z-[9999] brightness-25"
-      />
+      <ImageSwiper />
       <Toaster position="bottom-left" />
     </div>
   );

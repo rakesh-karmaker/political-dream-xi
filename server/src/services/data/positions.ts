@@ -16,13 +16,13 @@ export const playerPositions: Record<
 > = {
   formation442: [
     {
-      x: 28.77,
+      x: 32,
       xOffset: 0,
       y: 78.5,
       yOffset: 0,
     },
     {
-      x: 54.5,
+      x: 52,
       xOffset: 0,
       y: 78.5,
       yOffset: 0,

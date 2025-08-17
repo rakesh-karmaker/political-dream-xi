@@ -85,7 +85,7 @@ export default function UploadBtns(): React.ReactNode {
   }
 
   return (
-    <div className="w-full flex gap-2">
+    <div className="w-full flex gap-2 flex-wrap max-xl:justify-center">
       <UploadBtn
         onClick={handleUpload}
         title="Download"

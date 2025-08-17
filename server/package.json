@@ -33,6 +33,7 @@
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
+    "https": "^1.0.0",
     "ioredis": "^5.7.0",
     "mongoose": "^8.16.1",
     "multer": "^2.0.1",
