@@ -24,7 +24,11 @@ export default function ImageSwiper(): React.ReactNode {
       >
         {images.map((image, index) => (
           <SwiperSlide key={index} className="w-full h-full">
-            <img src={image} className="w-full h-full object-cover" />
+            <img
+              src={image}
+              alt={`Slide ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
           </SwiperSlide>
         ))}
       </Swiper>

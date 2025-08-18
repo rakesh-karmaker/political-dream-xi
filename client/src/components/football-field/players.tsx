@@ -14,7 +14,12 @@ export default function Players(): React.ReactNode {
       {position.map((position, index) => (
         <PlayerInput key={index} index={index} position={position} />
       ))}
+      {/* Accessible label for formation select */}
+      <label htmlFor="formation-select" className="sr-only">
+        Formation
+      </label>
       <select
+        id="formation-select"
         name="formation"
         value={formation}
         onChange={(e) => {
