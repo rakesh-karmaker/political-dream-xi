@@ -4,8 +4,8 @@ import editImage from "../lib/editImage.js";
 import { playerPositions } from "../services/data/positions.js";
 import fetchImage from "../utils/fetchImage.js";
 import config from "../config/config.js";
-import redisClient from "../config/redis/client.js";
 import { uploadFile } from "../lib/upload.js";
+import Goal from "../models/Goal.js";
 
 // Tune sharp for low-CPU environments
 sharp.cache({ memory: 50, files: 0, items: 0 });
@@ -17,7 +17,8 @@ let cachedFootballFieldMeta: { width: number; height: number } | null = null;
 
 export async function getGoals(_: Request, res: Response): Promise<void> {
   try {
-    const goals = await redisClient.get("goals");
+    const goalsDoc = await Goal.findOne().select("goals");
+    const goals = goalsDoc ? goalsDoc.goals : 0;
     res.status(200).json(goals);
   } catch (error) {
     console.error("Error fetching goals:", error);
@@ -107,11 +108,12 @@ export async function uploadPlayers(
       .composite(composites)
       .toBuffer();
 
-    // Get current goals from Redis
-    const goals = await redisClient.get("goals");
+    // Get current goals from mongodb
+    const goalsDoc = await Goal.findOne().select("goals");
+    const goals = goalsDoc ? goalsDoc.goals : 0;
 
     // Add goal scorer text
-    const text = parseInt(goals || "0") + 1;
+    const text = goals + 1;
     const fontSize = 120;
     const textColor = "#a3e086";
     const textPadding = 200;
@@ -158,13 +160,13 @@ export async function uploadPlayers(
       }
     }
 
-    // Update goals in Redis
-    await redisClient.set("goals", parseInt(goals || "0") + 1);
+    // Update goals in mongodb
+    await Goal.findOneAndUpdate({}, { $inc: { goals: 1 } }, { upsert: true });
 
     // Send the final image buffer as the response
     res.set("Content-Type", "application/json");
     res.send({
-      goals: parseInt(goals || "0") + 1,
+      goals: goals + 1,
       url,
       buffer: finalImageBuffer.toString("base64"),
     });

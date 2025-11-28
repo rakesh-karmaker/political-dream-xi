@@ -1,7 +1,7 @@
 import config from "../config/config.js";
 import { Server } from "http";
 import { Server as IOServer, Socket } from "socket.io";
-import redisClient from "../config/redis/client.js";
+import Goal from "../models/Goal.js";
 
 export default function setUpSocket(server: Server) {
   const io = new IOServer(server, {
@@ -23,7 +23,8 @@ export default function setUpSocket(server: Server) {
 
     socket.on("image-created", async () => {
       console.log("Image created event received");
-      const goals = await redisClient.get("goals");
+      const goalsDoc = await Goal.findOne().select("goals");
+      const goals = goalsDoc ? goalsDoc.goals : 0;
       for (const socketId of socketsIds) {
         console.log(`Emitting image-created event to socketId: ${socketId}`);
         io.to(socketId).emit("image-created", { goals });
