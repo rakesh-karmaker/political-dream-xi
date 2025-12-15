@@ -3,7 +3,7 @@ import type React from "react";
 export default function FieldPatches(): React.ReactNode {
   return (
     <>
-      <div className="absolute w-full h-full top-0  flex flex-col justify-center items-center -z-40">
+      <div className="absolute w-full h-full overflow-hidden top-0  flex flex-col justify-center items-center -z-40">
         {Array.from({ length: 10 }, (_, i) => (
           <div
             key={i}

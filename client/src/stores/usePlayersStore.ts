@@ -1,4 +1,4 @@
-import { defaultPlayers } from "@/services/data/players";
+import { defaultPlayers } from "@/services/data/defaultPlayers";
 import type { formations } from "@/services/data/positions";
 import { create } from "zustand";
 
