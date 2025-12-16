@@ -59,10 +59,10 @@ export default function Suggestions(): ReactNode {
 
   return (
     <>
-      <section className="w-full h-full min-h-screen flex justify-center items-center p-10">
+      <section className="w-full h-full min-h-screen flex justify-center items-center p-10 max-sm:p-4 max-sm:items-start max-xs:p-2">
         <div className="w-full max-w-130 flex flex-col gap-3">
           <h1 className="text-3xl font-bold mb-6">Player Suggestions</h1>
-          <div className="w-full h-full max-h-100 overflow-y-auto flex flex-col gap-3">
+          <div className="w-full h-full max-h-100 max-sm:max-h-[calc(100vh-8rem)] overflow-y-auto flex flex-col gap-3">
             {suggestionList && suggestionList.length > 0 ? (
               suggestionList.map(
                 (
@@ -75,7 +75,7 @@ export default function Suggestions(): ReactNode {
                 ) => (
                   <div
                     key={index}
-                    className="w-full p-2 pl-3 bg-light-gray/5 border border-black/7 rounded-md flex justify-between items-center"
+                    className="w-full p-2 pl-3 bg-light-gray/5 border border-black/7 rounded-md flex justify-between items-center gap-3"
                   >
                     <div>
                       <p>
