@@ -112,7 +112,7 @@ export default function Dropdown({
           <div className="w-full h-full overflow-y-auto flex flex-col gap-1">
             {Object.entries(teamPlayers).map(([teamName, players]) => {
               // Filter players based on search term
-              const filteredPlayers = players.filter((player) =>
+              const filteredPlayers = players.players.filter((player) =>
                 player.name.toLowerCase().includes(searchTerm.toLowerCase())
               );
               if (filteredPlayers.length === 0) return null;
@@ -121,6 +121,7 @@ export default function Dropdown({
                   key={teamName}
                   teamName={teamName}
                   players={filteredPlayers}
+                  color={players.color}
                   index={index}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}

@@ -12,6 +12,7 @@ type PlayersDropdownProps = {
   teamName: string;
   players: PlayerType[];
 
+  color: string;
   index: number;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
@@ -21,6 +22,7 @@ type PlayersDropdownProps = {
 export default function PlayersDropdown({
   teamName,
   players,
+  color,
   index,
   isLoading,
   setIsLoading,
@@ -34,6 +36,9 @@ export default function PlayersDropdown({
       <div
         className="w-full p-2 pb-3 flex justify-between items-center gap-3 cursor-pointer hover:opacity-75 transition-all duration-300 border-b-1 border-black/20 text-black/70"
         onClick={() => setIsOpen(!isOpen)}
+        style={{
+          backgroundColor: color,
+        }}
       >
         <p>{teamName}</p> <FaChevronDown />
       </div>
