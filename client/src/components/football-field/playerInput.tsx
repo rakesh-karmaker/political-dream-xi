@@ -29,6 +29,12 @@ export default function PlayerInput({
 
     document.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
+      const modals = document.getElementsByClassName("team-modal");
+      for (let i = 0; i < modals.length; i++) {
+        if (modals[i].contains(target)) {
+          return;
+        }
+      }
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&

@@ -11,6 +11,7 @@ import {
 import { IoMdSearch } from "react-icons/io";
 import { RiFolderUploadFill } from "react-icons/ri";
 import PlayersDropdown from "./playersDropdown";
+import SuggestPlayer from "./suggestPlayer";
 
 type DropdownProps = {
   index: number;
@@ -43,7 +44,7 @@ export default function Dropdown({
       className={
         isMobile
           ? "fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
-          : "w-75 h-100 bg-white rounded-md flex flex-col gap-2 absolute right-full top-0 z-99 shadow-2xl drop-down p-2"
+          : "w-75 h-107 bg-white rounded-md flex flex-col gap-2 absolute right-full top-0 z-99 shadow-2xl drop-down p-2"
       }
       style={
         isMobile
@@ -98,7 +99,7 @@ export default function Dropdown({
           />
         </label>
 
-        <div className="w-full h-full max-h-[21.125rem] py-2 px-3 bg-light-gray/30 rounded-md flex flex-col gap-2 text-[0.8em] max-lg:text-[0.9em] max-md:text-[1.2em] max-sm:text-[1rem]">
+        <div className="w-full h-full max-h-[19.65rem] py-2 px-3 bg-light-gray/30 rounded-md flex flex-col gap-2 text-[0.8em] max-lg:text-[0.9em] max-md:text-[1.2em] max-sm:text-[1rem]">
           <div className="w-full flex gap-1.5 items-center border-b-1 border-black/30 pb-1">
             <IoMdSearch className="text-lg" />
             <input
@@ -131,6 +132,8 @@ export default function Dropdown({
             })}
           </div>
         </div>
+
+        <SuggestPlayer />
       </div>
     </div>
   );
