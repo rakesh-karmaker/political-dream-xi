@@ -30,6 +30,17 @@ function QuoteBox(): React.ReactNode {
           <span className="bg-pure-white/70 h-0.5 w-4" />
           Dibbo
         </p>
+        <p className="text-pure-white/80 mt-2 text-[1.1rem] max-md:text-base font-medium">
+          Designed & developed by{" "}
+          <a
+            href="https://rakesh-karmaker.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-pure-white opacity-100 hover:opacity-80 transition-all"
+          >
+            Rakesh Karmaker
+          </a>
+        </p>
       </div>
     </div>
   );
